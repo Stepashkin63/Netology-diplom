@@ -18,7 +18,7 @@ public class BooleanSearchEngine implements SearchEngine {
             var doc = new PdfDocument(new PdfReader(file));
             int numberOfPages = doc.getNumberOfPages();
 
-            for (int i = 1; i < numberOfPages; i++) {
+            for (int i = 1; i <= numberOfPages; i++) {
                 PdfPage page = doc.getPage(i);
                 String text = PdfTextExtractor.getTextFromPage(page);
                 String[] words = text.split("\\P{IsAlphabetic}+");
