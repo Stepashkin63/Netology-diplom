@@ -10,17 +10,14 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-
-        String pathName = "E:\\Java projects\\pcs-jd-diplom\\pdfs";
-        BooleanSearchEngine engine = new BooleanSearchEngine(new File(pathName));
+        BooleanSearchEngine engine = new BooleanSearchEngine(new File("pdfs"));
         System.out.println(engine.search("бизнес"));
 
         int port = 8989;
-
+        ServerSocket serverSocket = new ServerSocket(port);
 
         while (true) {
-            try (ServerSocket serverSocket = new ServerSocket(port);
-                 Socket clientSocket = serverSocket.accept();
+            try (Socket clientSocket = serverSocket.accept();
                  PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                  BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
 
