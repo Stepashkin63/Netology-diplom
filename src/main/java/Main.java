@@ -13,28 +13,28 @@ public class Main {
         BooleanSearchEngine engine = new BooleanSearchEngine(new File("pdfs"));
         System.out.println(engine.search("бизнес"));
 
-        int port = 8989;
-        ServerSocket serverSocket = new ServerSocket(port);
+        try (ServerSocket serverSocket = new ServerSocket(8989)) { // старт сервера
+            while (true) { // в цикле принимаем подключения
+                try (
+                        Socket clientSocket = serverSocket.accept();
+                        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+                ) {
+                    String word = in.readLine();
 
-        while (true) {
-            try (Socket clientSocket = serverSocket.accept();
-                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+                    List<PageEntry> list = engine.search(word);
+                    Collections.sort(list);
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.setPrettyPrinting();
+                    Gson gson = gsonBuilder.create();
 
-                String word = in.readLine();
-
-                List<PageEntry> list = engine.search(word);
-                Collections.sort(list);
-                GsonBuilder gsonBuilder = new GsonBuilder();
-                gsonBuilder.setPrettyPrinting();
-                Gson gson = gsonBuilder.create();
-
-                for (PageEntry pageEntry : list) {
-                    out.println(gson.toJson(pageEntry));
+                    for (PageEntry pageEntry : list) {
+                        out.println(gson.toJson(pageEntry));
+                    }
+                    break;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                break;
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
