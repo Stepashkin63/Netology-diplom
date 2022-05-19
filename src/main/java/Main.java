@@ -5,7 +5,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class Main {
@@ -23,16 +22,16 @@ public class Main {
                     String word = in.readLine();
 
                     List<PageEntry> list = engine.search(word);
-                    Collections.sort(list);
+
                     GsonBuilder gsonBuilder = new GsonBuilder();
                     gsonBuilder.setPrettyPrinting();
                     Gson gson = gsonBuilder.create();
 
-                    for (PageEntry pageEntry : list) {
-                        out.println(gson.toJson(pageEntry));
-                    }
+                    out.println(gson.toJson(list));
+
                     break;
                 } catch (IOException e) {
+                    System.out.println("Не могу запустить сервер!");
                     e.printStackTrace();
                 }
             }

@@ -8,20 +8,21 @@ import java.io.IOException;
 import java.util.*;
 
 public class BooleanSearchEngine implements SearchEngine {
-    File pdfsDir;
-    Map<String, List<PageEntry>> wordList = new HashMap<>();
+
+    private Map<String, List<PageEntry>> wordList = new HashMap<>();
 
     public BooleanSearchEngine(File pdfsDir) throws IOException {
-        this.pdfsDir = pdfsDir;
 
-        for (File file : pdfsDir.listFiles()) {
-            var doc = new PdfDocument(new PdfReader(file));
+        List<File> listOfPdfFiles = List.of(Objects.requireNonNull(pdfsDir.listFiles()));
+
+        for (File pdf : listOfPdfFiles) {
+            var doc = new PdfDocument(new PdfReader(pdf));
             int numberOfPages = doc.getNumberOfPages();
 
             for (int i = 1; i <= numberOfPages; i++) {
                 PdfPage page = doc.getPage(i);
-                String text = PdfTextExtractor.getTextFromPage(page);
-                String[] words = text.split("\\P{IsAlphabetic}+");
+                var text = PdfTextExtractor.getTextFromPage(page);
+                var words = text.split("\\P{IsAlphabetic}+");
 
                 Map<String, Integer> freqs = new HashMap<>();
                 for (var word : words) {
@@ -36,8 +37,9 @@ public class BooleanSearchEngine implements SearchEngine {
                     if (wordList.containsKey(f.getKey())) {
                         pageEntryList = wordList.get(f.getKey());
                     }
-                    PageEntry pageEntry = new PageEntry(file.getName(), i, f.getValue());
+                    PageEntry pageEntry = new PageEntry(pdf.getName(), i, f.getValue());
                     pageEntryList.add(pageEntry);
+                    Collections.sort(pageEntryList);
                     wordList.put(f.getKey(), pageEntryList);
                 }
             }
@@ -46,8 +48,9 @@ public class BooleanSearchEngine implements SearchEngine {
 
     @Override
     public List<PageEntry> search(String word) {
-        if (wordList.containsKey(word)) {
-            return wordList.get(word);
+        String wordToLowerCase = word.toLowerCase();
+        if (wordList.containsKey(wordToLowerCase)) {
+            return wordList.get(wordToLowerCase);
         }
         return Collections.emptyList();
     }
